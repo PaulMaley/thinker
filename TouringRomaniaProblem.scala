@@ -5,9 +5,11 @@
  */
 
 // Excude the pun ...
-class CityState(_symbol: Symbol, distFromBucharest: Float) extends State() {
+class CityState(_symbol: Symbol, distFromBucharest: Float) extends State(_symbol.name) {
 	val symbol = _symbol
+	override def toString() = name
 }	
+
 class driveTo(name: String) extends Action(name)
 
 class TouringRomaniaProblem(depart: Symbol) extends Problem {
@@ -18,7 +20,7 @@ class TouringRomaniaProblem(depart: Symbol) extends Problem {
 	val startLocation: State = symbolToState(depart)
 	
 	def start() = startLocation
-	def isGoal(s: State) = s.name == 'Bucharest.toString() // Seems a bit dangerous ... no Namespaceing??
+	def isGoal(s: State) = s.name == 'Bucharest.name // Seems a bit dangerous ... no Namespaceing??
 	
 	// Build the successor function
 	// For each State (=City) look through list of roads
@@ -28,16 +30,25 @@ class TouringRomaniaProblem(depart: Symbol) extends Problem {
 	  val ss = s.symbol
 	  //val z = TouringRomania.roads.filter( e => (ss == e._1 || ss == e._2) ) // w/o pattern matching
 	  val z = TouringRomania.roads.filter { case (si,sf,d) => (ss == si || ss == sf) }  // Clearer ??
-	  z.map {case (si,sf,d) => (new Action(si+"-to-"+sf), if (ss == si) symbolToState(sf) else symbolToState(si))}
+	  z.map {case (si,sf,d) => (new Action(si.name+"-to-"+sf.name), if (ss == si) symbolToState(sf) else symbolToState(si))}
 	}
 
 	val successorMap = stateSpace.map(s => s -> successors(s)).toMap
 	
-	def getSuccessorFunction = (s: CityState) => successorMap(s)
+	def getSuccessorFunction = (s: State) => successorMap( symbolToState(Symbol(s.name)) )
 	
 	
-//	overrides def getCostFunction = (si: State, sf: State) => 0f
-//	overrides def getHeuristicFunction = (s: State) => 0f
+	override def getCostFunction = (si: State, sf: State) => {
+	  TouringRomania.roads find {
+	    case (s,f,d) => ((s == Symbol(si.name) && f == Symbol(sf.name)) ||
+	    			  	 (s == Symbol(sf.name) && f == Symbol(si.name)))
+	  }  match {
+	    case Some(x) => x._3 // Can't figure out how to pattern match this
+	    case None => 0f		 // Should never happen ...
+	  }
+	}
+	
+	override def getHeuristicFunction = (s: State) => TouringRomania.distFromBucharest(Symbol(s.name))
 }
 
 object TouringRomaniaProblem {
@@ -45,9 +56,21 @@ object TouringRomaniaProblem {
     val p = new TouringRomaniaProblem('Arad)
     System.out.println(p.start.name)
     
-    System.out.println(p.symbolToState('Lugoj).name )
+    System.out.println('Lugoj.name )
+    System.out.println(Symbol(p.symbolToState('Lugoj).name) )
     
     val next = p.getSuccessorFunction()
-    System.out.println(next)
+    System.out.println(next(p.start))
+    
+    val h = p.getHeuristicFunction()
+    System.out.println(h(p.start()))
+    
+    val nextState = next(p.start)(0)._2
+    System.out.println(nextState)
+    
+    val cost = p.getCostFunction()
+    System.out.println(cost(p.start, nextState))
+    
+    
   }
 }

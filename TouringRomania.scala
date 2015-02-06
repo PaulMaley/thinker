@@ -18,7 +18,7 @@ object TouringRomania {
 													('Sibiu, 'Fagaras, 99f),
 													('Arad, 'Sibiu, 140f),
 													('Arad, 'Timisoara, 118f),
-													('Timisoara, 'LLugoj, 111f),
+													('Timisoara, 'Lugoj, 111f),
 													('Lugoj, 'Mehadia, 70f),
 													('Mehadia, 'Dobreta, 75f),
 													('Dobreta, 'Craiova, 120f),
