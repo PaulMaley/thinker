@@ -5,7 +5,7 @@
  */
 
 // Excude the pun ...
-class CityState(_symbol: Symbol, distFromBucharest: Float) extends State(_symbol.toString){
+class CityState(_symbol: Symbol, distFromBucharest: Float) extends State() {
 	val symbol = _symbol
 }	
 class driveTo(name: String) extends Action(name)

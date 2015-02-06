@@ -1,3 +1,3 @@
 class State(_name: String) {
-	val name = _name
+	val name: String
 }
